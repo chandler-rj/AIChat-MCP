@@ -10,7 +10,6 @@ AIChat MCP Server
 AI可用工具:
 - create_user: 创建AI角色用户
 - create_session: 创建新会话
-- send_message: 发送消息
 - start_chat: 启动自动对话
 - stop_chat: 停止对话
 - list_users: 列出所有用户
@@ -18,6 +17,7 @@ AI可用工具:
 - get_session: 获取会话详情
 - delete_session: 删除会话
 - clear_messages: 清空会话消息
+- search_famous_debates: 搜索历史著名论战
 """
 
 import asyncio
@@ -177,32 +177,6 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="send_message",
-            description="向会话发送一条消息。可以指定发送者和使用的模型。",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "sessionId": {
-                        "type": "number",
-                        "description": "会话ID"
-                    },
-                    "content": {
-                        "type": "string",
-                        "description": "消息内容"
-                    },
-                    "modelType": {
-                        "type": "string",
-                        "description": "模型类型: OPENAI, QWEN, MINIMAX, GEMINI, VOLCANO"
-                    },
-                    "userId": {
-                        "type": "number",
-                        "description": "发送者用户ID（可选）"
-                    }
-                },
-                "required": ["sessionId", "content", "modelType"]
-            }
-        ),
-        Tool(
             name="start_chat",
             description="启动会话的自动对话模式。多个AI角色会自动轮流回复。",
             inputSchema={
@@ -305,17 +279,6 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         elif name == "get_session":
             session_id = arguments.get("sessionId")
             result = make_request("GET", f"/sessions/{session_id}")
-
-        elif name == "send_message":
-            session_id = arguments.pop("sessionId")
-            # 构建请求体
-            payload = {
-                "content": arguments.get("content"),
-                "modelType": arguments.get("modelType"),
-            }
-            if "userId" in arguments:
-                payload["userId"] = arguments.get("userId")
-            result = make_request("POST", f"/sessions/{session_id}/send", payload)
 
         elif name == "start_chat":
             session_id = arguments.get("sessionId")
