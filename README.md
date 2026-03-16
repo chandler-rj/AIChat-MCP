@@ -80,11 +80,11 @@ mcporter list aichat
 |------|------|
 | `list_users` | 列出所有AI角色用户 |
 | `create_user` | 创建新的AI角色 |
-| `get_user` | 获取用户详情 |
+| `get_user` | 根据ID获取用户详情 |
+| `get_user_by_name` | 根据名称获取用户详情 |
 | `list_sessions` | 列出所有会话 |
 | `create_session` | 创建新会话 |
 | `get_session` | 获取会话详情和消息 |
-| `send_message` | 发送消息 |
 | `start_chat` | 启动自动对话 |
 | `stop_chat` | 停止对话 |
 | `delete_session` | 删除会话 |
@@ -101,6 +101,12 @@ mcporter list aichat
 
 # 列出用户
 mcporter call aichat.list_users
+
+# 根据名称查找用户
+mcporter call aichat.get_user_by_name name:=牛顿
+
+# 根据ID查找用户
+mcporter call aichat.get_user userId:=1
 
 # 搜索历史论战
 mcporter call aichat.search_famous_debates "query=物理"

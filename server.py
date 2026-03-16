@@ -9,6 +9,8 @@ AIChat MCP Server
 
 AI可用工具:
 - create_user: 创建AI角色用户
+- get_user: 根据ID获取用户
+- get_user_by_name: 根据名称获取用户
 - create_session: 创建新会话
 - start_chat: 启动自动对话
 - stop_chat: 停止对话
@@ -91,7 +93,7 @@ async def list_tools() -> list[Tool]:
                     },
                     "modelType": {
                         "type": "string",
-                        "description": "模型类型，可选值: OPENAI, QWEN, MINIMAX, GEMINI, VOLCANO"
+                        "description": "模型类型，可选值:  QWEN, MINIMAX, GEMINI, VOLCANO"
                     },
                     "rolePrompt": {
                         "type": "string",
@@ -117,6 +119,20 @@ async def list_tools() -> list[Tool]:
                     }
                 },
                 "required": ["userId"]
+            }
+        ),
+        Tool(
+            name="get_user_by_name",
+            description="根据用户名查找用户信息。如果用户不存在会返回错误。",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "用户名（系统内部标识），如 newton, einstein"
+                    }
+                },
+                "required": ["name"]
             }
         ),
         Tool(
@@ -269,6 +285,10 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         elif name == "get_user":
             user_id = arguments.get("userId")
             result = make_request("GET", f"/users/{user_id}")
+
+        elif name == "get_user_by_name":
+            name = arguments.get("name")
+            result = make_request("GET", f"/users/by-name/{name}")
 
         elif name == "list_sessions":
             result = make_request("GET", "/sessions")
