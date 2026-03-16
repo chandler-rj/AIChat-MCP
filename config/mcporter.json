@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "aichat": {
+      "command": "python server.py"
+    }
+  },
+  "imports": []
+}

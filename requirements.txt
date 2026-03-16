@@ -1,0 +1,8 @@
+# AIChat MCP Server
+# 运行方式: python server.py
+
+# MCP SDK
+mcp>=1.0.0
+
+# HTTP请求
+requests>=2.31.0
