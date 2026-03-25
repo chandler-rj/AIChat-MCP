@@ -12,22 +12,40 @@ AI 可以通过 MCP 工具调用你的 AIChat 服务：
 - 启动/停止自动对话
 - 搜索历史著名论战
 
-## 快速开始
+## 认证
 
-### 1. 安装依赖
+MCP Server 支持 3 种认证方式：
 
-```bash
-cd AIChat-MCP
-pip install -r requirements.txt
+| 方式 | 环境变量 | 说明 |
+|------|----------|------|
+| **API Key** | `AICHAT_API_KEY` | 推荐 - 需要在 AIChat 中预生成 API Key |
+| **用户名密码** | `AICHAT_USERNAME` + `AICHAT_PASSWORD` | 自动登录获取 Token |
+| **直接 Token** | `AICHAT_ACCESS_TOKEN` | 直接使用已有的 Access Token |
+
+### 生成 API Key
+
+1. 登录 AIChat 网页端
+2. 在浏览器控制台执行以下代码生成 API Key：
+
+```javascript
+// 获取当前用户的 accessToken（登录后）
+const token = localStorage.getItem('accessToken');
+
+// 生成 API Key
+fetch('/api/auth/api-key/generate', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer ' + token }
+}).then(r => r.json()).then(d => console.log('API Key:', d.apiKey));
 ```
 
-### 2. 启动 MCP Server
+或者使用 curl（需要先通过浏览器获取 token）：
 
 ```bash
-python server.py
+curl -X POST http://localhost:8080/api/auth/api-key/generate \
+  -H "Authorization: Bearer <your-jwt-token>"
 ```
 
-### 3. 配置 MCP 客户端
+### 配置示例
 
 #### 方式A: 使用 mcporter (推荐)
 
@@ -40,16 +58,12 @@ python server.py
       "command": "python",
       "args": ["D:/AI Project/AIChat/AIChat-MCP/server.py"],
       "env": {
-        "AICHAT_BASE_URL": "http://localhost:8080/api"
+        "AICHAT_BASE_URL": "http://localhost:8080/api",
+        "AICHAT_API_KEY": "your-api-key-here"
       }
     }
   }
 }
-```
-
-验证配置：
-```bash
-mcporter list aichat
 ```
 
 #### 方式B: Claude Desktop
@@ -63,16 +77,52 @@ mcporter list aichat
       "command": "python",
       "args": ["D:/AI Project/AIChat/AIChat-MCP/server.py"],
       "env": {
-        "AICHAT_BASE_URL": "http://localhost:8080/api"
+        "AICHAT_BASE_URL": "http://localhost:8080/api",
+        "AICHAT_USERNAME": "your-username",
+        "AICHAT_PASSWORD": "your-password"
       }
     }
   }
 }
 ```
 
-#### Cursor IDE
+#### 方式C: 使用环境变量
 
-在设置中添加 MCP Server 配置。
+```bash
+# 方式1: API Key（推荐）
+set AICHAT_API_KEY=your-api-key
+set AICHAT_BASE_URL=http://localhost:8080/api
+
+# 方式2: 用户名密码
+set AICHAT_USERNAME=your-username
+set AICHAT_PASSWORD=your-password
+set AICHAT_BASE_URL=http://localhost:8080/api
+
+# 方式3: 直接Token
+set AICHAT_ACCESS_TOKEN=your-access-token
+set AICHAT_BASE_URL=http://localhost:8080/api
+
+python server.py
+```
+
+## 快速开始
+
+### 1. 安装依赖
+
+```bash
+cd AIChat-MCP
+pip install -r requirements.txt
+```
+
+### 2. 配置认证
+
+设置环境变量或直接在 mcporter 配置中添加认证信息。
+
+### 3. 启动 MCP Server
+
+```bash
+python server.py
+```
 
 ## 可用工具
 
@@ -112,7 +162,7 @@ mcporter call aichat.get_user userId:=1
 mcporter call aichat.search_famous_debates "query=物理"
 
 # 创建用户
-mcporter call aichat.create_user name:=牛顿 modelType:=OPENAI rolePrompt:=你是艾萨克·牛顿
+mcporter call aichat.create_user name:=牛顿 displayName:=艾萨克·牛顿 modelType:=QWEN rolePrompt:=你是艾萨克·牛顿，英国物理学家
 
 # 创建会话
 mcporter call aichat.create_session name:=牛顿vs胡克 sessionTheme:=关于万有引力优先权的争论
